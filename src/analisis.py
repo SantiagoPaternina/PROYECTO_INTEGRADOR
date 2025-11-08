@@ -1,98 +1,100 @@
+import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import json
+import plotly.express as px
 
-def analizar_datos(df, fuente="CSV"):
-    print(f"\n=== Análisis de Datos desde {fuente} ===\n")
-    print(df.head())
+COLOR_NARANJA = "#ff8c00"
 
-    if {"edad", "nombre", "felicidad", "estres", "motivacion"}.issubset(df.columns):
-        promedio_edad = df["edad"].mean()
-        promedio_felicidad = df["felicidad"].mean()
-        promedio_estres = df["estres"].mean()
-        promedio_motivacion = df["motivacion"].mean()
+def mostrar_dashboard(encuestas_df):
 
-        print(f"\n📌 Promedio de edades: {promedio_edad:.2f}")
-        print(f"📌 Promedio de felicidad: {promedio_felicidad:.2f}")
-        print(f"📌 Promedio de estrés: {promedio_estres:.2f}")
-        print(f"📌 Promedio de motivación: {promedio_motivacion:.2f}")
+    st.markdown("## 🌗 Gráfico Unificado – SUNBURST de Bienestar Emocional")
 
-        # Crear figura con 2x2 subplots
-        fig, axs = plt.subplots(2, 2, figsize=(12, 8))
+    if encuestas_df.empty:
+        st.warning("⚠️ No hay datos suficientes para analizar.")
+        return
 
-        # -------- Gráfico 1: Edades --------
-        axs[0, 0].scatter(range(len(df["edad"])), df["edad"], color="blue", label="Edades")
-        for i, fila in df.iterrows():
-            axs[0, 0].text(i, fila["edad"] + 0.2, fila["nombre"], fontsize=7, ha="center", rotation=30)
+    # ---------------------------
+    # ✅ Columnas importantes
+    # ---------------------------
+    col_emocion = "resp_¿Cómo te sientes hoy?"
+    col_sueno = "resp_¿Cómo ha estado tu sueño últimamente?"
+    col_estres = "resp_¿Has sentido estrés últimamente?"
+    col_apoyo = "resp_¿Sientes apoyo de tus amigos o familia?"
+    col_animo = "resp_¿Cómo calificarías tu ánimo general?"
 
-        axs[0, 0].axhline(promedio_edad, color="red", linestyle="--", label=f"Promedio ({promedio_edad:.2f})")
+    # ---------------------------
+    # ✅ Nivel general de bienestar
+    # ---------------------------
+    mapping_animo = {"Excelente": 4, "Bueno": 3, "Regular": 2, "Bajo": 1}
+    encuestas_df["puntaje_animo"] = encuestas_df[col_animo].map(mapping_animo)
 
-        # Círculo verde englobando
-        x_min, x_max = 0, len(df["edad"])
-        y_min, y_max = df["edad"].min(), df["edad"].max()
-        centro_x = (x_max - x_min) / 2
-        centro_y = (y_max + y_min) / 2
-        radio = max((x_max - x_min) / 2, (y_max - y_min) / 2) + 1
-        circulo = plt.Circle((centro_x, centro_y), radio, color="green", fill=False, linewidth=2, linestyle="--")
-        axs[0, 0].add_patch(circulo)
+    bienestar_promedio = encuestas_df["puntaje_animo"].mean()
 
-        axs[0, 0].set_title("Edades de los usuarios")
-        axs[0, 0].set_xlabel("Usuario (índice)")
-        axs[0, 0].set_ylabel("Edad")
-        axs[0, 0].legend()
-
-        # -------- Gráfico 2: Promedio felicidad --------
-        axs[0, 1].bar(["Felicidad"], [promedio_felicidad], color="orange")
-        axs[0, 1].set_ylim(0, 5)
-        axs[0, 1].set_title("Promedio de Felicidad")
-
-        # -------- Gráfico 3: Promedio estrés --------
-        axs[1, 0].bar(["Estrés"], [promedio_estres], color="red")
-        axs[1, 0].set_ylim(0, 5)
-        axs[1, 0].set_title("Promedio de Estrés")
-
-        # -------- Gráfico 4: Promedio motivación --------
-        axs[1, 1].bar(["Motivación"], [promedio_motivacion], color="green")
-        axs[1, 1].set_ylim(0, 5)
-        axs[1, 1].set_title("Promedio de Motivación")
-
-        # Mostrar todo el dashboard
-        plt.tight_layout()
-        plt.show()
-
-
-def analizar_csv():
-    try:
-        datos = pd.read_csv("./data/usuarios.csv")
-        analizar_datos(datos, "CSV")
-    except FileNotFoundError:
-        print("⚠️ No se encontró el archivo usuarios.csv")
-
-
-def analizar_json():
-    try:
-        with open("./data/usuarios.json", "r", encoding="utf-8") as f:
-            datos_json = json.load(f)
-        df = pd.DataFrame(datos_json)
-        analizar_datos(df, "JSON")
-    except FileNotFoundError:
-        print("⚠️ No se encontró el archivo usuarios.json")
-
-
-if __name__ == "__main__":
-    print("¿Qué archivo deseas analizar?")
-    print("1. usuarios.csv")
-    print("2. usuarios.json")
-    print("3. Ambos formatos")
-
-    opcion = input("Selecciona una opción (1/2/3): ")
-
-    if opcion == "1":
-        analizar_csv()
-    elif opcion == "2":
-        analizar_json()
-    elif opcion == "3":
-        analizar_csv()
-        analizar_json()
+    if bienestar_promedio >= 3.5:
+        nivel = "Bienestar Alto"
+    elif bienestar_promedio >= 2.5:
+        nivel = "Bienestar Medio"
     else:
-        print("⚠️ Opción no válida")
+        nivel = "Bienestar Bajo"
+
+    # ---------------------------
+    # ✅ DataFrame Sunburst
+    # ---------------------------
+    sunburst_df = pd.DataFrame()
+
+    # Círculo central – Bienestar general
+    sunburst_df = pd.concat([
+        sunburst_df,
+        pd.DataFrame({
+            "nivel": ["Bienestar General"],
+            "categoria": [nivel],
+            "subcategoria": [None],
+            "valor": [1]
+        })
+    ])
+
+    # Función para agregar niveles al sunburst
+    def agregar_categoria(nombre_categoria, columna_respuestas):
+        conteo = encuestas_df[columna_respuestas].value_counts().reset_index()
+        conteo.columns = ["respuesta", "cantidad"]
+
+        conteo["nivel"] = "Bienestar General"
+        conteo["categoria"] = nombre_categoria
+        conteo["subcategoria"] = conteo["respuesta"]
+        conteo["valor"] = conteo["cantidad"]
+
+        return conteo[["nivel", "categoria", "subcategoria", "valor"]]
+
+    # Agregar dimensiones importantes
+    sunburst_df = pd.concat([
+        sunburst_df,
+        agregar_categoria("Emoción del Día", col_emocion),
+        agregar_categoria("Sueño", col_sueno),
+        agregar_categoria("Estrés", col_estres),
+        agregar_categoria("Apoyo Social", col_apoyo)
+    ])
+
+    # ---------------------------
+    # ✅ Gráfico Sunburst Final
+    # ---------------------------
+    fig = px.sunburst(
+        sunburst_df,
+        path=["nivel", "categoria", "subcategoria"],
+        values="valor",
+        color="valor",
+        color_continuous_scale=["#ffb766", "#ff8c00", "#cc6e00"],
+        title="🌗 Bienestar Emocional – Preguntas Clave",
+        width=900,
+        height=900
+    )
+
+    fig.update_layout(
+        title_font_color=COLOR_NARANJA,
+        font_color=COLOR_NARANJA,
+        plot_bgcolor="#0c0c0c",
+        paper_bgcolor="#0c0c0c"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.markdown("### 📋 Datos completos analizados")
+    st.dataframe(encuestas_df)
