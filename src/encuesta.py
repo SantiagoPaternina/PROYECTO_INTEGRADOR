@@ -1,45 +1,30 @@
-def realizar_encuesta():
-    print("\n--- Datos del Usuario ---")
+import streamlit as st
 
-    # Validar nombre (solo letras y espacios)
-    while True:
-        nombre = input("Ingrese su nombre: ").strip()
-        if nombre.replace(" ", "").isalpha():
-            break
-        else:
-            print("❌ El nombre solo puede tener letras y espacios.")
+def mostrar_encuesta():
+    st.header("🧠 Encuesta de Bienestar Emocional")
 
-    # Validar edad (1 a 100)
-    while True:
-        try:
-            edad = int(input("Ingrese su edad (15-25): "))
-            if 15 <= edad <= 25:
-                break
-            else:
-                print("❌ La edad debe estar entre 15 y 25.")
-        except:
-            print("❌ Ingrese solo números enteros.")
+    nombre = st.text_input("Nombre:")
+    edad = st.number_input("Edad (15 a 25 años)", min_value=15, max_value=25)
+    if not nombre:
+        st.warning("Por favor, escribe tu nombre.")
+        return None
 
-    # Preguntas de la encuesta
-    felicidad = validar_escala("Del 1 al 5, ¿qué tan feliz estás hoy? ")
-    estres = validar_escala("Del 1 al 5, ¿qué tan estresado estás hoy? ")
-    motivacion = validar_escala("Del 1 al 5, ¿qué tan motivado estás hoy? ")
-
-    return {
-        "nombre": nombre,
-        "edad": edad,
-        "felicidad": felicidad,
-        "estres": estres,
-        "motivacion": motivacion
+    preguntas = {
+        "¿Cómo te sientes hoy?": ["Feliz 😊", "Triste 😔", "Ansioso 😰", "Motivado 💪", "Cansado 😴"],
+        "¿Cómo ha estado tu sueño últimamente?": ["Muy bien", "Regular", "Mal"],
+        "¿Qué tanto disfrutas tus actividades diarias?": ["Mucho", "Poco", "Nada"],
+        "¿Sientes apoyo de tus amigos o familia?": ["Sí", "A veces", "No"],
+        "¿Has sentido estrés últimamente?": ["Sí", "No"],
+        "¿Tienes energía para tus estudios o trabajo?": ["Sí", "Algo", "No"],
+        "¿Cuántas horas duermes al día?": [">8", "6-8", "<6"],
+        "¿Con qué frecuencia haces ejercicio?": ["Diario", "Ocasional", "Nunca"],
+        "¿Cómo calificarías tu ánimo general?": ["Excelente", "Bueno", "Regular", "Bajo"],
+        "¿Te gustaría recibir recursos o apoyo emocional?": ["Sí", "Tal vez", "No"]
     }
 
-def validar_escala(pregunta):
-    while True:
-        try:
-            valor = int(input(pregunta))
-            if 1 <= valor <= 5:
-                return valor
-            else:
-                print("❌ Debe estar entre 1 y 5.")
-        except:
-            print("❌ Solo números.")
+    respuestas = {p: st.radio(p, opciones) for p, opciones in preguntas.items()}
+
+    if st.button("Enviar encuesta"):
+        return {"nombre": nombre, "edad": edad, **respuestas}
+
+    return None
