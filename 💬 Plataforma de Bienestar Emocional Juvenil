@@ -1,0 +1,85 @@
+La Plataforma de Bienestar Emocional Juvenil es una aplicación interactiva desarrollada en Python con Streamlit, orientada a medir y fortalecer el bienestar emocional en jóvenes (15 a 25 años).
+
+La aplicación permite:
+
+Registrar usuarios y gestionar sus datos.
+
+Realizar encuestas de bienestar emocional.
+
+Analizar el estado emocional mediante gráficos interactivos.
+
+Generar consejos personalizados basados en el estado de ánimo.
+
+El diseño combina un fondo visual atractivo, colores naranjas para resaltar elementos y un dashboard intuitivo para la administración de datos.
+
+Tecnologías
+
+Lenguaje: Python 3.x
+
+Framework: Streamlit
+
+Visualización: Plotly (Sunburst charts)
+
+Base de datos: SQLite
+
+Módulos adicionales: Pandas, Requests
+
+Características Principales
+
+Registro de usuario con nombre, edad y país.
+
+Encuesta de bienestar con múltiples dimensiones: emociones, sueño, estrés, apoyo social y energía.
+
+Análisis de resultados en tiempo real con dashboard interactivo.
+
+Generación de consejos contextuales y personalizados según respuestas.
+
+Exportación de resultados a CSV para análisis externo.
+
+Ejecución:
+
+Ejecuta la aplicación principal: streamlit run main.py
+En la vista Usuario: completa la encuesta y recibe tu consejo personalizado.
+
+En la vista Administrador: inicia sesión con usuario=admin y contraseña=1234 para acceder al dashboard.
+
+Estructura de archivos
+/Proyecto-Bienestar-Juvenil
+│
+├─ main.py            # Interfaz principal y flujo de la app
+├─ main2.py           # Script opcional para subir cambios a GitHub
+├─ registro.py        # Login administrador
+├─ encuesta.py        # Encuesta de bienestar
+├─ analisis.py        # Dashboard y gráficos Sunburst
+├─ almacenamiento.py  # Persistencia de datos (SQLite)
+├─ agente.py          # Análisis de estado y generación de consejos
+├─ requirements.txt   # Dependencias necesarias
+└─ /data              # Carpeta para la base de datos SQLite
+Uso de Git y ramas
+
+La rama main contiene la versión estable.
+
+Para probar nuevas funcionalidades, se recomienda crear una rama separada:
+git checkout -b nueva_rama
+git add .
+git commit -m "Actualización de módulos y mejoras"
+git push -u origin nueva_rama
+Cuando los cambios estén probados, se pueden fusionar con main:
+git checkout main
+git merge nueva_rama
+git push
+
+Notas técnicas:
+
+Las encuestas se almacenan como JSON en SQLite, lo que permite expandir fácilmente las respuestas a columnas para análisis.
+
+Los consejos se generan en base a un análisis de palabras clave y pueden usar la API de Hugging Face para recomendaciones dinámicas.
+
+Los gráficos Sunburst permiten analizar varias dimensiones del bienestar emocional en un solo visual.
+
+Diseño con Streamlit + CSS para un fondo oscuro y detalles en naranja, optimizado para experiencia juvenil.
+
+Licencia
+
+Este proyecto está bajo Licencia MIT.
+Puedes adaptarlo, modificarlo o usarlo para fines educativos y profesionales.
